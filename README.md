@@ -15,8 +15,8 @@ A multiplayer real-time quiz app using:
 
 ## How to Run
 
-->Start redis on your linux 
-->Install dependencies
-->Run API server
-->Run Socket server
-->Hit API using any tool to start quiz then quiz will be broadcasted to live users
+- Start redis on your linux 
+- Install dependencies
+- Run API server  
+- Run Socket server
+- Hit API using any tool to start quiz then quiz will be broadcasted to live users
