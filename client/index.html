@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quiz Socket Test</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #fafafa;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 5px;
+    }
+
+    #quiz {
+      margin-top: 20px;
+    }
+
+    .option-btn {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      background-color: #f0f0f0;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .option-btn:hover {
+      background-color: #e0e0e0;
+    }
+
+    .option-btn.selected {
+      background-color: red;
+      color: white;
+    }
+
+    #timer-display {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Quiz Game Test</h2>
+  <input id="username" placeholder="Enter your name" />
+  <button onclick="connect()">Connect</button>
+
+  <div id="quiz"></div>
+
+  <script>
+    let socket;
+    let currentQuestionId;
+    let timerInterval;
+
+    function connect() {
+      const username = document.getElementById("username").value;
+      socket = io("http://localhost:3001");
+
+      socket.on("connect", () => {
+        console.log("Connected:", socket.id);
+        socket.emit("register", username);
+      });
+
+      socket.on("question", (data) => {
+        console.log("Received question:", data);
+        currentQuestionId = data.id;
+
+        clearInterval(timerInterval);
+
+        let timeLeft = data.timer || 5;
+
+        // Render question with timer and options
+        document.getElementById("quiz").innerHTML = `
+          <div id="timer-display">⏱ Time Left: <span id="timer">${timeLeft}</span> seconds</div>
+          <h3>${data.question}</h3>
+          ${data.options.map((opt, i) => `
+            <button class="option-btn" onclick="submitAnswer(${i}, this)">${opt}</button>
+          `).join("")}
+        `;
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          const timerEl = document.getElementById("timer");
+          if (timerEl) timerEl.textContent = timeLeft;
+
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            document.querySelectorAll(".option-btn").forEach(btn => btn.disabled = true);
+          }
+        }, 1000);
+      });
+
+      socket.on("quiz_end", (data) => {
+        clearInterval(timerInterval);
+        const username = document.getElementById("username").value;
+        let score=0;
+        let highestScore=0;
+        for(const obj of data.scores){
+            if(highestScore<obj.score){
+                highestScore=obj.score
+            }
+            if(obj.user ===username){
+                 score = obj.score;
+            }
+        }
+        document.getElementById("quiz").innerHTML = `
+          <h2>Quiz Finished!</h2>
+          <p>Your Score: ${score}/5</p>
+          <h1>You are ${highestScore===score?"Winner Hurray!!":"Looser (Better luck next time)"}</h1>
+        `;
+      });
+    }
+
+    function submitAnswer(answerIndex, btn) {
+      // Highlight the selected button
+      console.log(answerIndex)
+      document.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+
+      socket.emit("submit_answer", {
+        questionId: currentQuestionId,
+        answer: answerIndex
+      });
+    }
+  </script>
+</body>
+</html>
