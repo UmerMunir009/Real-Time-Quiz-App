@@ -78,7 +78,7 @@
 
         clearInterval(timerInterval);
 
-        let timeLeft = data.timer || 5;
+        let timeLeft = data.timer || 30;
 
         // Render question with timer and options
         document.getElementById("quiz").innerHTML = `
@@ -101,18 +101,19 @@
         }, 1000);
       });
 
-      socket.on("quiz_end", (data) => {
+      socket.on("quiz_scores", (data) => {
         clearInterval(timerInterval);
-        const username = document.getElementById("username").value;
+        console.log(data)
         let score=0;
         let highestScore=0;
         for(const obj of data.scores){
-            if(highestScore<obj.score){
-                highestScore=obj.score
+            if(obj.userId===socket.id){
+                score=obj.score;
             }
-            if(obj.user ===username){
-                 score = obj.score;
+            if(obj.score>highestScore){
+              highestScore=obj.score;
             }
+           
         }
         document.getElementById("quiz").innerHTML = `
           <h2>Quiz Finished!</h2>
@@ -123,7 +124,7 @@
     }
 
     function submitAnswer(answerIndex, btn) {
-      // Highlight the selected button
+  
       console.log(answerIndex)
       document.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
       btn.classList.add("selected");
@@ -131,7 +132,8 @@
       socket.emit("submit_answer", {
         questionId: currentQuestionId,
         answer: answerIndex
-      });
+      }
+    );
     }
   </script>
 </body>

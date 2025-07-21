@@ -31,4 +31,4 @@
   },
 ];
 
-export default questions
+module.exports= questions

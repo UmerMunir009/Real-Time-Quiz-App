@@ -1,4 +1,4 @@
-import Redis from "ioredis";
+const Redis=require('ioredis')
 
 const redis = new Redis({
   host: process.env.REDIS_HOST || "127.0.0.1",
@@ -15,4 +15,5 @@ redis.ping().then((result) => {
 }).catch((err) => {
   console.error("Redis connection error:", err);
 });
-export { publisher, subscriber };
+
+module.exports= { publisher, subscriber };
