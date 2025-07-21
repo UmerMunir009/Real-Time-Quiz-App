@@ -23,7 +23,6 @@ subscriber.on("message", async (channel, message) => {
   if (channel === "submitting-answer") {
     const payload = JSON.parse(message);
     await answerQueue.add("store-answer", payload);
-    console.log(payload)
     console.log("Answer pushed to BullMQ queue");
   }
 });

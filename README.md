@@ -4,6 +4,7 @@ A multiplayer real-time quiz app using:
 -  Node.js (Express)
 -  Socket.IO for real-time communication
 -  Redis Pub/Sub for inter-service messaging
+-  Bullmq for handling db processing in background to make faster the main server
 -  HTML,CSS,Vanilla JS frontend
 
 ## Features
