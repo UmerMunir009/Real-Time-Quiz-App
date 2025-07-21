@@ -7,13 +7,10 @@ const { Answer } = require("./models");
 const httpServer = createServer();
 const io = new Server(httpServer, { cors: { origin: "*" } });
 
-let users = {};
-
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
   socket.on("register", (userName) => {
-    users[socket.id] = userName;
     console.log(`User ${userName} registered with ID: ${socket.id}`);
   });
 
@@ -35,7 +32,6 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
-    delete users[socket.id];
   });
 });
 
@@ -73,11 +69,11 @@ subscriber.on("message", (channel, message) => {
       const currentQuestion = parsedQuestions[currentIndex];
       io.emit("question", {
         ...currentQuestion,
-        timer: 5, // Frontend will count down from this
+        timer: 15, 
       });
 
       currentIndex++;
-    }, 5000); // 30 seconds per question
+    }, 15000); 
   }
 });
 

@@ -15,7 +15,6 @@ const answerWorker = new Worker('answer-queue', async (job) => {
   }
 }, {
   connection,
-
 });
 
 answerWorker.on('failed', (job, err) => {
